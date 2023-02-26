@@ -6,6 +6,8 @@ import neuralFragmentShader from "./shaders/neural_fragment.glsl";
 import neworkData from "./assets/neural/temperature_net.json";
 import NeuralNet from "./neural_net";
 
+const texture_size = 1024;
+
 const depthEngineMaterial = new THREE.ShaderMaterial({
   uniforms: {
     cs_offset: { value: 0 },
@@ -17,6 +19,8 @@ const depthEngineMaterial = new THREE.ShaderMaterial({
   depthTest: false,
   blending: THREE.CustomBlending,
   blendEquation: THREE.AddEquation,
+  blendSrc: THREE.OneFactor,
+  blendDst: THREE.OneFactor,
 });
 
 const scale_min = new THREE.Vector3(
@@ -47,22 +51,26 @@ export default class CrossSection {
     this.neuralNetwork = NeuralNet.fromJSON(neworkData);
 
     // Create an orthographic camera, and set its position
-    this.orthoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
+    this.orthoCamera = new THREE.OrthographicCamera(1, -1, 1, -1, -10, 10);
 
     // Create a render target, and set the texture of the plane to the render target
-    this.depthTarget = new THREE.WebGLRenderTarget(128, 128, {
+    this.depthTarget = new THREE.WebGLRenderTarget(texture_size, texture_size, {
       minFilter: THREE.LinearFilter,
       magFilter: THREE.LinearFilter,
       format: THREE.RedFormat,
       type: THREE.FloatType,
     });
 
-    this.neuralTarget = new THREE.WebGLRenderTarget(128, 128, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat,
-      type: THREE.FloatType,
-    });
+    this.neuralTarget = new THREE.WebGLRenderTarget(
+      texture_size,
+      texture_size,
+      {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+      }
+    );
 
     planeMaterial.map = this.neuralTarget.texture;
     {
@@ -97,6 +105,11 @@ export default class CrossSection {
       this.neuralScene.add(planeMesh);
       this.neuralCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
     }
+  }
+
+  setCrossSection(direction, offset) {
+    this.planeMesh.position.copy(direction).multiplyScalar(offset);
+    this.planeMesh.lookAt(new THREE.Vector3());
   }
 
   renderTexture(renderer) {
