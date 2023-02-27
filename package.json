@@ -2,16 +2,16 @@
   "name": "aws_engine",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "three-orbitcontrols": "^2.110.3",
-    "three.js": "^0.77.1"
+    "three": "^0.150.0"
   },
   "devDependencies": {
     "@parcel/transformer-glsl": "^2.8.3",
